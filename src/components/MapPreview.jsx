@@ -1,16 +1,16 @@
 import { useEffect, useRef } from 'react';
 import maplibregl from 'maplibre-gl';
 
-// Voyager style — warm, vintage-looking. No API key needed.
+// Dark matter tiles — high contrast against the parchment UI
 const MAP_STYLE = {
   version: 8,
   sources: {
     carto: {
       type: 'raster',
       tiles: [
-        'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
-        'https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
-        'https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+        'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
+        'https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
+        'https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
       ],
       tileSize: 256,
       attribution: '&copy; CARTO, &copy; OpenStreetMap contributors',
@@ -69,26 +69,26 @@ export default function MapPreview({ coords, zoom = 14, name }) {
   }, [coords.lat, coords.lng, zoom]);
 
   return (
-    <div className="map-container" style={{ height: 280, width: '100%' }}>
+    <div className="map-container" style={{ height: 300, width: '100%' }}>
       <div ref={containerRef} style={{ width: '100%', height: '100%' }} />
       {name && (
         <div className="map-overlay" style={{ zIndex: 1 }}>
-          <div style={{ fontSize: 11, color: 'var(--ink-muted)', marginBottom: 2 }}>Location</div>
-          <div style={{ fontWeight: 600, fontSize: 13, lineHeight: 1.3 }}>{name}</div>
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginBottom: 2 }}>Location</div>
+          <div style={{ fontWeight: 600, fontSize: 13, lineHeight: 1.3, color: 'rgba(255,255,255,0.95)' }}>{name}</div>
         </div>
       )}
       <div style={{
         position: 'absolute',
         bottom: 10,
         left: 10,
-        background: 'rgba(245, 240, 232, 0.85)',
-        border: '1px solid var(--border-light)',
+        background: 'rgba(10, 12, 20, 0.7)',
+        border: '1px solid rgba(255,255,255,0.1)',
         backdropFilter: 'blur(10px)',
         borderRadius: 6,
         padding: '3px 7px',
         fontSize: 10,
         fontFamily: "'SF Mono','Fira Code',monospace",
-        color: 'var(--ink-muted)',
+        color: 'rgba(255,255,255,0.5)',
         pointerEvents: 'none',
         zIndex: 1,
       }}>

@@ -495,10 +495,10 @@ export default function App() {
         </div>
       )}
 
-      {/* Map at bottom */}
+      {/* Map at bottom — dark inset */}
       {result?.parsed?.coords && (
         <div className="fade-in" style={{ width: '100%' }}>
-          <div className="card" style={{ padding: 5, overflow: 'hidden' }}>
+          <div className="map-wrapper">
             <MapPreview
               coords={result.parsed.coords}
               zoom={Math.min(result.parsed.zoom || 14, 17)}
