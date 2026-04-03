@@ -491,3 +491,221 @@ body::after {
   color: var(--ink);
   border-color: var(--border);
 }
+
+/* ─── Map style toggle button ────────────────────────────────── */
+.map-style-toggle {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 10px;
+  background: rgba(10, 12, 20, 0.75);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  color: rgba(255,255,255,0.8);
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all 0.15s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+
+.map-style-toggle:hover {
+  background: rgba(10, 12, 20, 0.9);
+  color: white;
+  border-color: rgba(255,255,255,0.2);
+}
+
+/* ─── Place card ─────────────────────────────────────────────── */
+.place-card {
+  background: #0e1117;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.06);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+}
+
+.place-card-image-wrap {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+}
+
+.place-card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.place-card-image-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 40%,
+    rgba(14, 17, 23, 0.6) 70%,
+    rgba(14, 17, 23, 1) 100%
+  );
+}
+
+.place-card-body {
+  padding: 16px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.place-card-image-wrap + .place-card-body {
+  margin-top: -28px;
+  position: relative;
+  z-index: 1;
+}
+
+.place-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.place-card-pin {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #60a5fa;
+  flex-shrink: 0;
+}
+
+.place-card-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.95);
+  line-height: 1.25;
+  font-family: 'DM Serif Display', serif;
+  letter-spacing: -0.01em;
+}
+
+.place-card-subtitle {
+  font-size: 12px;
+  color: rgba(255,255,255,0.4);
+  margin-top: 2px;
+}
+
+.place-card-desc {
+  font-size: 13px;
+  line-height: 1.55;
+  color: rgba(255,255,255,0.55);
+  margin: 0;
+}
+
+.place-card-wiki-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.4);
+  text-decoration: none;
+  transition: color 0.15s;
+  align-self: flex-start;
+}
+
+.place-card-wiki-link:hover {
+  color: rgba(255,255,255,0.7);
+}
+
+/* ─── Skeleton loading ───────────────────────────────────────── */
+.place-card-skeleton {
+  background: #0e1117;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.06);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+}
+
+.skeleton-image {
+  width: 100%;
+  height: 160px;
+  background: linear-gradient(
+    110deg,
+    rgba(255,255,255,0.04) 0%,
+    rgba(255,255,255,0.08) 40%,
+    rgba(255,255,255,0.04) 60%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite ease-in-out;
+}
+
+.skeleton-text {
+  padding: 16px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.skeleton-line {
+  height: 12px;
+  border-radius: 6px;
+  background: linear-gradient(
+    110deg,
+    rgba(255,255,255,0.04) 0%,
+    rgba(255,255,255,0.08) 40%,
+    rgba(255,255,255,0.04) 60%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite ease-in-out;
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ─── Preview section (card + map combined dark panel) ────────── */
+.preview-panel {
+  background: #0e1117;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow:
+    0 6px 32px rgba(0,0,0,0.22),
+    inset 0 1px 0 rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  flex-direction: column;
+}
+
+.preview-panel .place-card {
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
+}
+
+.preview-panel .map-container {
+  border-radius: 0;
+}
+
+.preview-panel .map-container .maplibregl-map {
+  border-radius: 0;
+}
+
+.preview-divider {
+  height: 1px;
+  background: rgba(255,255,255,0.06);
+}
+
+@media (max-width: 700px) {
+  .place-card-image-wrap {
+    height: 160px;
+  }
+}

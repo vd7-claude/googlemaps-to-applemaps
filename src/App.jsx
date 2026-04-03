@@ -2,6 +2,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { parseGoogleMapsUrl } from './utils/googleMapsParser';
 import { buildAppleMapsUrl, formatCoords } from './utils/appleMapsBuilder';
 import MapPreview from './components/MapPreview';
+import PlaceCard from './components/PlaceCard';
 
 // ─── Haptics helper ─────────────────────────────────────────────────────────────
 
@@ -470,10 +471,16 @@ export default function App() {
         </div>
       )}
 
-      {/* Map at bottom — dark inset */}
+      {/* Preview panel: place card + map in one dark block */}
       {result?.parsed?.coords && (
         <div className="fade-in" style={{ width: '100%' }}>
-          <div className="map-wrapper">
+          <div className="preview-panel">
+            {result.parsed.name && (
+              <>
+                <PlaceCard name={result.parsed.name} coords={result.parsed.coords} />
+                <div className="preview-divider" />
+              </>
+            )}
             <MapPreview
               coords={result.parsed.coords}
               zoom={Math.min(result.parsed.zoom || 14, 17)}
