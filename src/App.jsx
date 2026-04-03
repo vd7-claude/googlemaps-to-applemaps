@@ -22,30 +22,77 @@ const CheckIco = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="non
 
 function CopyBtn({ text }) {
   const [ok, setOk] = useState(false);
-  const go = useCallback(async () => {
-    haptic([5]);
-    try { await navigator.clipboard.writeText(text); } catch { const t = document.createElement('textarea'); t.value = text; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); }
+  const ref = useRef(null);
+
+  const go = useCallback(async (e) => {
+    haptic([8, 30, 5]);
+    // Ripple effect
+    if (ref.current) {
+      const btn = ref.current;
+      const rect = btn.getBoundingClientRect();
+      const ripple = document.createElement('span');
+      ripple.className = 'ripple';
+      ripple.style.left = (e.clientX - rect.left) + 'px';
+      ripple.style.top = (e.clientY - rect.top) + 'px';
+      btn.appendChild(ripple);
+      setTimeout(() => ripple.remove(), 400);
+    }
+    try { await navigator.clipboard.writeText(text); }
+    catch { const t = document.createElement('textarea'); t.value = text; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); }
     setOk(true);
-    setTimeout(() => setOk(false), 2000);
+    setTimeout(() => setOk(false), 1800);
   }, [text]);
-  return <button className={`btn-copy ${ok ? 'copied' : ''}`} onClick={go}>{ok ? <CheckIco /> : <CopyIco />}{ok ? 'Copied' : 'Copy URL'}</button>;
+
+  return (
+    <button ref={ref} className={`btn-copy ${ok ? 'copied' : ''}`} onClick={go}>
+      {ok ? <CheckIco /> : <CopyIco />}
+      {ok ? 'Copied' : 'Copy URL'}
+    </button>
+  );
+}
+
+function Skeleton() {
+  return (
+    <div className="skeleton-card">
+      <div className="skeleton-header">
+        <div className="skeleton-row">
+          <div className="skel skel-circle" />
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div className="skel skel-title" />
+            <div className="skel skel-sub" />
+          </div>
+        </div>
+        <div className="skeleton-row">
+          <div className="skel skel-btn" />
+          <div className="skel skel-btn2" />
+        </div>
+      </div>
+      <div className="skel skel-map" />
+    </div>
+  );
 }
 
 export default function App() {
   const [input, setInput] = useState('');
   const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const inputRef = useRef(null);
 
   const convert = useCallback((urlOverride) => {
     const value = (urlOverride !== undefined ? urlOverride : input).trim();
     if (!value) return;
-    setError(null); setResult(null);
+    setError(null); setResult(null); setLoading(true);
     haptic([10]);
-    const parsed = parseGoogleMapsUrl(value);
-    if (parsed.error && parsed.type !== 'short') { setError(parsed.error); return; }
-    const appleUrl = buildAppleMapsUrl(parsed);
-    setResult({ parsed, appleUrl });
+
+    // Tiny delay for perceived loading (shows skeleton)
+    setTimeout(() => {
+      const parsed = parseGoogleMapsUrl(value);
+      if (parsed.error && parsed.type !== 'short') { setError(parsed.error); setLoading(false); return; }
+      const appleUrl = buildAppleMapsUrl(parsed);
+      setResult({ parsed, appleUrl });
+      setLoading(false);
+      haptic([5, 20, 5]);
+    }, 150);
   }, [input]);
 
   const handleSubmit = e => { e.preventDefault(); convert(); };
@@ -58,7 +105,6 @@ export default function App() {
 
   return (
     <div className="app">
-      {/* Hero */}
       <div className="hero">
         <div className="hero-logos">
           <img src={GMAPS} className="hero-logo" alt="Google Maps" />
@@ -69,18 +115,17 @@ export default function App() {
         <p>Paste a Google Maps link. Get an Apple Maps link.</p>
       </div>
 
-      {/* Error */}
       {error && <div className="error-msg">{error}</div>}
 
-      {/* Short URL notice */}
       {parsed?.type === 'short' && (
         <div className="short-notice">
           <strong>Short link detected</strong><br/>
-          <span className="dim">Open it in Google Maps, tap Share → Copy link, and paste the full URL.</span>
+          <span className="dim">Open in Google Maps, tap Share → Copy link, and paste the full URL.</span>
         </div>
       )}
 
-      {/* Result */}
+      {loading && <Skeleton />}
+
       {appleUrl && (
         <div className="result-card">
           <div className="result-header">
@@ -93,7 +138,7 @@ export default function App() {
             </div>
             <div className="result-actions">
               <a href={appleUrl} target="_blank" rel="noopener noreferrer" className="btn-apple" onClick={() => haptic([10])}>
-                <img src={AMAPS} width={20} height={20} alt="" style={{ borderRadius: 5 }} />
+                <img src={AMAPS} width={20} height={20} alt="" style={{ borderRadius: 6 }} />
                 Open in Apple Maps
               </a>
               <CopyBtn text={appleUrl} />
@@ -105,18 +150,16 @@ export default function App() {
         </div>
       )}
 
-      {/* Footer */}
       <div className="footer">
         <span>All URL formats</span>
         <span className="dot">·</span>
         <span>Client-side only</span>
       </div>
 
-      {/* Bottom dock input (Arc style) */}
       <div className="input-dock">
         <div className="input-dock-inner">
           <form onSubmit={handleSubmit} className="input-row">
-            <input ref={inputRef} className="url-input" type="text" value={input}
+            <input className="url-input" type="text" value={input}
               onChange={e => { setInput(e.target.value); setResult(null); setError(null); }}
               onPaste={handlePaste} placeholder="Paste a Google Maps URL..."
               autoFocus spellCheck={false} autoComplete="off" />
