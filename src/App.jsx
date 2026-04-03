@@ -9,40 +9,17 @@ function haptic(pattern = [10]) {
   try { navigator.vibrate?.(pattern); } catch {}
 }
 
-// ─── Icons ──────────────────────────────────────────────────────────────────────
+// ─── Logo URLs ──────────────────────────────────────────────────────────────────
 
-function IconGoogle() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-    </svg>
-  );
+const GOOGLE_MAPS_LOGO = 'https://raw.githubusercontent.com/vdutts7/squircle/refs/heads/main/web/google/google-maps.webp';
+const APPLE_MAPS_LOGO = 'https://raw.githubusercontent.com/vdutts7/squircle/refs/heads/main/webp/macos/apple-maps.webp';
+
+function LogoGoogle({ size = 16 }) {
+  return <img src={GOOGLE_MAPS_LOGO} alt="Google Maps" width={size} height={size} style={{ borderRadius: size * 0.22, flexShrink: 0 }} />;
 }
 
-function IconAppleMaps() {
-  // Apple Maps app icon representation
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-      <rect width="24" height="24" rx="5.5" fill="#63DA38"/>
-      <rect width="24" height="12" y="12" rx="0" fill="#45B649" />
-      <rect width="24" height="24" rx="5.5" fill="url(#amg)" />
-      <defs>
-        <linearGradient id="amg" x1="12" y1="0" x2="12" y2="24" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#63DA38"/>
-          <stop offset="0.5" stopColor="#3DB83D"/>
-          <stop offset="1" stopColor="#1B9E46"/>
-        </linearGradient>
-      </defs>
-      {/* Road */}
-      <path d="M3 18 L10 6 L14 14 L21 6" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-      {/* Pin */}
-      <circle cx="17" cy="7.5" r="3" fill="#EA4335" stroke="white" strokeWidth="1.5"/>
-      <circle cx="17" cy="7" r="1" fill="white"/>
-    </svg>
-  );
+function LogoAppleMaps({ size = 20 }) {
+  return <img src={APPLE_MAPS_LOGO} alt="Apple Maps" width={size} height={size} style={{ borderRadius: size * 0.22, flexShrink: 0 }} />;
 }
 
 function IconCopy() {
@@ -221,7 +198,7 @@ function TranslationResult({ parsed, appleUrl }) {
           {/* LEFT: Google Maps source */}
           <div className="translation-side">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-              <span className="tag tag-google"><IconGoogle /> Google</span>
+              <span className="tag tag-google"><LogoGoogle size={14} /> Google Maps</span>
               <span className="tag tag-type">{TYPE_LABELS[parsed.type] || parsed.type}</span>
             </div>
             <div className="url-box">
@@ -270,7 +247,7 @@ function TranslationResult({ parsed, appleUrl }) {
             ) : appleUrl ? (
               <>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span className="tag tag-apple"><IconAppleMaps /> Apple Maps</span>
+                  <span className="tag tag-apple"><LogoAppleMaps size={14} /> Apple Maps</span>
                 </div>
                 <div className="url-box success">
                   {appleUrl}
@@ -283,7 +260,7 @@ function TranslationResult({ parsed, appleUrl }) {
                     className="btn-open-apple"
                     onClick={() => haptic([15, 50, 10])}
                   >
-                    <IconAppleMaps />
+                    <LogoAppleMaps size={20} />
                     Open in Apple Maps
                   </a>
                   <CopyButton text={appleUrl} />
@@ -401,16 +378,14 @@ export default function App() {
       {/* Header */}
       <div style={{ textAlign: 'center', marginBottom: 28 }}>
         <div style={{
-          display: 'inline-flex', alignItems: 'center', gap: 6,
-          padding: '4px 12px',
-          background: 'rgba(255,255,255,0.5)',
-          border: '1px solid var(--border-light)',
-          borderRadius: 100,
-          fontSize: 10, color: 'var(--ink-muted)',
-          marginBottom: 14,
-          letterSpacing: '0.08em', fontWeight: 600, textTransform: 'uppercase',
+          display: 'inline-flex', alignItems: 'center', gap: 8,
+          marginBottom: 16,
         }}>
-          <IconLocation /> Maps Converter
+          <LogoGoogle size={36} />
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--ink-faint)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+            <path d="M5 12h14M13 6l6 6-6 6"/>
+          </svg>
+          <LogoAppleMaps size={36} />
         </div>
 
         <h1 className="heading-serif" style={{
@@ -418,7 +393,7 @@ export default function App() {
           lineHeight: 1.15,
           marginBottom: 10,
         }}>
-          Google → Apple Maps
+          Maps Converter
         </h1>
 
         <p style={{
