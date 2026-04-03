@@ -15,10 +15,17 @@ const EXAMPLES = [
 
 function haptic(p = [10]) { try { navigator.vibrate?.(p); } catch {} }
 
-const Arrow = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>;
-const Pin = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>;
-const CopyIco = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>;
-const CheckIco = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>;
+// Lucide-style icons
+const IcoArrowRight = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>;
+const IcoPin = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>;
+// Lucide "send" / arrow-up-right for convert
+const IcoSend = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>;
+// Lucide "link" for copy
+const IcoLink = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>;
+// Lucide "check"
+const IcoCheck = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>;
+// Lucide "external-link" / map
+const IcoExternalLink = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>;
 
 function CopyBtn({ text }) {
   const [ok, setOk] = useState(false);
@@ -26,7 +33,6 @@ function CopyBtn({ text }) {
 
   const go = useCallback(async (e) => {
     haptic([8, 30, 5]);
-    // Ripple effect
     if (ref.current) {
       const btn = ref.current;
       const rect = btn.getBoundingClientRect();
@@ -44,9 +50,8 @@ function CopyBtn({ text }) {
   }, [text]);
 
   return (
-    <button ref={ref} className={`btn-copy ${ok ? 'copied' : ''}`} onClick={go}>
-      {ok ? <CheckIco /> : <CopyIco />}
-      {ok ? 'Copied' : 'Copy URL'}
+    <button ref={ref} className={`btn-icon ${ok ? 'copied' : ''}`} onClick={go} title={ok ? 'Copied!' : 'Copy URL'}>
+      {ok ? <IcoCheck /> : <IcoLink />}
     </button>
   );
 }
@@ -57,14 +62,12 @@ function Skeleton() {
       <div className="skeleton-header">
         <div className="skeleton-row">
           <div className="skel skel-circle" />
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6 }}>
             <div className="skel skel-title" />
             <div className="skel skel-sub" />
           </div>
-        </div>
-        <div className="skeleton-row">
-          <div className="skel skel-btn" />
-          <div className="skel skel-btn2" />
+          <div className="skel skel-btn-open" />
+          <div className="skel skel-btn-sm" />
         </div>
       </div>
       <div className="skel skel-map" />
@@ -81,12 +84,9 @@ export default function App() {
   const convert = useCallback((urlOverride) => {
     const value = (urlOverride !== undefined ? urlOverride : input).trim();
     if (!value) return;
-    // Collapse keyboard / dismiss dock on mobile
     document.activeElement?.blur();
     setError(null); setResult(null); setLoading(true);
     haptic([10]);
-
-    // Tiny delay for perceived loading (shows skeleton)
     setTimeout(() => {
       const parsed = parseGoogleMapsUrl(value);
       if (parsed.error && parsed.type !== 'short') { setError(parsed.error); setLoading(false); return; }
@@ -110,7 +110,7 @@ export default function App() {
       <div className="hero">
         <div className="hero-logos">
           <img src={GMAPS} className="hero-logo" alt="Google Maps" />
-          <span className="hero-arrow"><Arrow /></span>
+          <span className="hero-arrow"><IcoArrowRight /></span>
           <img src={AMAPS} className="hero-logo" alt="Apple Maps" />
         </div>
         <h1>Maps <span className="g">Converter</span></h1>
@@ -130,18 +130,17 @@ export default function App() {
 
       {appleUrl && (
         <div className="result-card">
-          <div className="result-header">
-            <div className="result-place">
-              <div className="result-pin"><Pin /></div>
-              <div>
-                <div className="result-name">{name || 'Location'}</div>
-                {parsed.coords && <div className="result-coords">{formatCoords(parsed.coords)}</div>}
-              </div>
+          {/* Single row: pin + name/coords + buttons */}
+          <div className="result-row">
+            <div className="result-pin"><IcoPin /></div>
+            <div className="result-info">
+              <div className="result-name">{name || 'Location'}</div>
+              {parsed.coords && <div className="result-coords">{formatCoords(parsed.coords)}</div>}
             </div>
-            <div className="result-actions">
-              <a href={appleUrl} target="_blank" rel="noopener noreferrer" className="btn-apple" onClick={() => haptic([10])}>
-                <img src={AMAPS} width={20} height={20} alt="" style={{ borderRadius: 6 }} />
-                Open in Apple Maps
+            <div className="result-btns">
+              <a href={appleUrl} target="_blank" rel="noopener noreferrer" className="btn-open" onClick={() => haptic([10])} title="Open in Apple Maps">
+                <IcoExternalLink />
+                Open in Maps
               </a>
               <CopyBtn text={appleUrl} />
             </div>
@@ -165,7 +164,9 @@ export default function App() {
               onChange={e => { setInput(e.target.value); setResult(null); setError(null); }}
               onPaste={handlePaste} placeholder="Paste a Google Maps URL..."
               autoFocus spellCheck={false} autoComplete="off" />
-            <button type="submit" className="btn-go" disabled={!input.trim()}>Convert</button>
+            <button type="submit" className="btn-go" disabled={!input.trim()} title="Convert">
+              <IcoSend />
+            </button>
           </form>
           <div className="pills">
             <span className="pills-label">Try:</span>
