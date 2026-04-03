@@ -1,7 +1,13 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { parseGoogleMapsUrl } from './utils/googleMapsParser';
 import { buildAppleMapsUrl, formatCoords } from './utils/appleMapsBuilder';
 import MapPreview from './components/MapPreview';
+
+// ─── Haptics helper ─────────────────────────────────────────────────────────────
+
+function haptic(pattern = [10]) {
+  try { navigator.vibrate?.(pattern); } catch {}
+}
 
 // ─── Icons ──────────────────────────────────────────────────────────────────────
 
@@ -16,10 +22,25 @@ function IconGoogle() {
   );
 }
 
-function IconApple() {
+function IconAppleMaps() {
+  // Apple Maps app icon representation
   return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.7 9.05 7.43c1.38.07 2.33.74 3.12.79 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.39-1.32 2.76-2.57 3.97zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="5.5" fill="#63DA38"/>
+      <rect width="24" height="12" y="12" rx="0" fill="#45B649" />
+      <rect width="24" height="24" rx="5.5" fill="url(#amg)" />
+      <defs>
+        <linearGradient id="amg" x1="12" y1="0" x2="12" y2="24" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="#63DA38"/>
+          <stop offset="0.5" stopColor="#3DB83D"/>
+          <stop offset="1" stopColor="#1B9E46"/>
+        </linearGradient>
+      </defs>
+      {/* Road */}
+      <path d="M3 18 L10 6 L14 14 L21 6" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+      {/* Pin */}
+      <circle cx="17" cy="7.5" r="3" fill="#EA4335" stroke="white" strokeWidth="1.5"/>
+      <circle cx="17" cy="7" r="1" fill="white"/>
     </svg>
   );
 }
@@ -40,28 +61,41 @@ function IconCheck() {
   );
 }
 
-function IconArrow() {
+function IconArrowRight() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M5 12h14M12 5l7 7-7 7"/>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M5 12h14M13 6l6 6-6 6"/>
     </svg>
   );
 }
 
 function IconLocation() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
     </svg>
   );
 }
 
-function IconExternal() {
+function IconChevronDown() {
   return (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="6 9 12 15 18 9"/>
     </svg>
   );
+}
+
+// ─── Responsive hook ────────────────────────────────────────────────────────────
+
+function useIsMobile() {
+  const [mobile, setMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 700);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 700px)');
+    const handler = (e) => setMobile(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+  return mobile;
 }
 
 // ─── Copy button ────────────────────────────────────────────────────────────────
@@ -70,6 +104,7 @@ function CopyButton({ text }) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = useCallback(async () => {
+    haptic([5]);
     try {
       await navigator.clipboard.writeText(text);
     } catch {
@@ -86,12 +121,11 @@ function CopyButton({ text }) {
 
   return (
     <button
-      className={`btn-copy ${copied ? 'copied' : ''}`}
+      className={`btn-secondary ${copied ? 'copied' : ''}`}
       onClick={handleCopy}
-      style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 10px' }}
     >
       {copied ? <IconCheck /> : <IconCopy />}
-      {copied ? 'Copied' : 'Copy'}
+      {copied ? 'Copied' : 'Copy URL'}
     </button>
   );
 }
@@ -99,148 +133,181 @@ function CopyButton({ text }) {
 // ─── Helpers ─────────────────────────────────────────────────────────────────────
 
 const TYPE_LABELS = {
-  place: 'Place',
-  search: 'Search',
-  coords: 'Coordinates',
-  directions: 'Directions',
-  short: 'Short Link',
-  query: 'Query',
+  place: 'Place', search: 'Search', coords: 'Coordinates',
+  directions: 'Directions', short: 'Short Link', query: 'Query',
 };
 
-// ─── Result Panel ───────────────────────────────────────────────────────────────
+// ─── Details drawer (mobile) or inline (desktop) ─────────────────────────────────
 
-function ResultPanel({ parsed, appleUrl }) {
+function DetailsContent({ parsed }) {
+  if (!parsed.name && !parsed.coords && !parsed.directions?.from && !parsed.directions?.to) return null;
   return (
-    <div className="slide-up" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-
-      {/* Short URL warning */}
-      {parsed.type === 'short' && (
-        <div style={{
-          background: 'rgba(245,158,11,0.08)',
-          border: '1px solid rgba(245,158,11,0.2)',
-          borderRadius: 12,
-          padding: '12px 16px',
-          fontSize: 13,
-          color: 'rgba(253,230,138,0.9)',
-          display: 'flex',
-          gap: 10,
-          alignItems: 'flex-start',
-          lineHeight: 1.5,
-        }}>
-          <span style={{ fontSize: 16, flexShrink: 0 }}>⚠</span>
-          <div>
-            <div style={{ fontWeight: 600, marginBottom: 4 }}>Shortened URL detected</div>
-            <div style={{ color: 'rgba(253,230,138,0.65)' }}>
-              Short links (maps.app.goo.gl) can't be resolved client-side. Open it in Google Maps,
-              tap <strong>Share → Copy link</strong>, and paste the full URL here.
-            </div>
-          </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <div className="info-label" style={{ marginBottom: 2 }}>Extracted Details</div>
+      {parsed.name && (
+        <div style={{ display: 'flex', gap: 10 }}>
+          <span className="info-label" style={{ paddingTop: 2, minWidth: 52 }}>Name</span>
+          <span style={{ fontSize: 13, fontWeight: 500 }}>{parsed.name}</span>
         </div>
       )}
-
-      {/* Input URL */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span className="tag tag-google"><IconGoogle /> Google Maps</span>
-          {parsed.type && <span className="tag tag-type">{TYPE_LABELS[parsed.type] || parsed.type}</span>}
+      {parsed.coords && (
+        <div style={{ display: 'flex', gap: 10 }}>
+          <span className="info-label" style={{ paddingTop: 2, minWidth: 52 }}>Coords</span>
+          <span style={{ fontSize: 12, color: 'var(--ink-light)', fontFamily: "'SF Mono','Fira Code',monospace" }}>
+            {formatCoords(parsed.coords)}
+          </span>
         </div>
-        <div className="url-box" style={{ padding: '10px 12px' }}>
-          {parsed.originalUrl}
+      )}
+      {parsed.zoom && (
+        <div style={{ display: 'flex', gap: 10 }}>
+          <span className="info-label" style={{ paddingTop: 2, minWidth: 52 }}>Zoom</span>
+          <span style={{ fontSize: 12, color: 'var(--ink-light)', fontFamily: "'SF Mono','Fira Code',monospace" }}>
+            {parsed.zoom}x
+          </span>
+        </div>
+      )}
+      {parsed.directions?.from && (
+        <div style={{ display: 'flex', gap: 10 }}>
+          <span className="info-label" style={{ paddingTop: 2, minWidth: 52 }}>From</span>
+          <span style={{ fontSize: 13 }}>{parsed.directions.from}</span>
+        </div>
+      )}
+      {parsed.directions?.to && (
+        <div style={{ display: 'flex', gap: 10 }}>
+          <span className="info-label" style={{ paddingTop: 2, minWidth: 52 }}>To</span>
+          <span style={{ fontSize: 13 }}>{parsed.directions.to}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DetailsDrawer({ parsed, onClose }) {
+  const [closing, setClosing] = useState(false);
+
+  const close = () => {
+    haptic([5]);
+    setClosing(true);
+    setTimeout(onClose, 250);
+  };
+
+  return (
+    <>
+      <div className="drawer-backdrop" onClick={close} />
+      <div className={`drawer ${closing ? 'closing' : ''}`}>
+        <div className="drawer-handle" />
+        <DetailsContent parsed={parsed} />
+        <div style={{ marginTop: 16, paddingBottom: 8 }}>
+          <button onClick={close} className="btn-secondary" style={{ width: '100%', justifyContent: 'center', padding: '10px' }}>
+            Close
+          </button>
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ─── Translation result layout ──────────────────────────────────────────────────
+
+function TranslationResult({ parsed, appleUrl }) {
+  const isMobile = useIsMobile();
+  const [showDrawer, setShowDrawer] = useState(false);
+  const hasDetails = parsed.name || parsed.coords || parsed.directions?.from || parsed.directions?.to;
+
+  return (
+    <div className="fade-in">
+      <div className="card" style={{ overflow: 'hidden' }}>
+        <div className="translation-layout">
+          {/* LEFT: Google Maps source */}
+          <div className="translation-side">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+              <span className="tag tag-google"><IconGoogle /> Google</span>
+              <span className="tag tag-type">{TYPE_LABELS[parsed.type] || parsed.type}</span>
+            </div>
+            <div className="url-box">
+              {parsed.originalUrl}
+            </div>
+            {/* Details — inline on desktop, drawer trigger on mobile */}
+            {hasDetails && (
+              isMobile ? (
+                <button
+                  className="btn-secondary"
+                  onClick={() => { haptic([5]); setShowDrawer(true); }}
+                  style={{ alignSelf: 'flex-start' }}
+                >
+                  Details <IconChevronDown />
+                </button>
+              ) : (
+                <div className="card" style={{ padding: '12px 14px', marginTop: 4 }}>
+                  <DetailsContent parsed={parsed} />
+                </div>
+              )
+            )}
+          </div>
+
+          {/* CENTER: Arrow */}
+          <div className="translation-arrow">
+            <IconArrowRight />
+          </div>
+
+          {/* RIGHT: Apple Maps output */}
+          <div className="translation-side">
+            {parsed.type === 'short' ? (
+              <div style={{
+                background: 'rgba(199, 90, 58, 0.06)',
+                border: '1px solid var(--rust-border)',
+                borderRadius: 10,
+                padding: '12px 14px',
+                fontSize: 13,
+                color: 'var(--rust)',
+                lineHeight: 1.5,
+              }}>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>Short URL</div>
+                <div style={{ color: 'var(--ink-light)', fontSize: 12 }}>
+                  Open the link in Google Maps, tap <strong>Share → Copy link</strong>, then paste the full URL.
+                </div>
+              </div>
+            ) : appleUrl ? (
+              <>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span className="tag tag-apple"><IconAppleMaps /> Apple Maps</span>
+                </div>
+                <div className="url-box success">
+                  {appleUrl}
+                </div>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  <a
+                    href={appleUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-open-apple"
+                    onClick={() => haptic([15, 50, 10])}
+                  >
+                    <IconAppleMaps />
+                    Open in Apple Maps
+                  </a>
+                  <CopyButton text={appleUrl} />
+                </div>
+              </>
+            ) : (
+              <div style={{
+                background: 'rgba(199, 90, 58, 0.06)',
+                border: '1px solid var(--rust-border)',
+                borderRadius: 10,
+                padding: '12px 14px',
+                fontSize: 13,
+                color: 'var(--rust)',
+              }}>
+                Could not generate Apple Maps URL — insufficient data.
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Extracted metadata */}
-      {(parsed.name || parsed.coords || (parsed.directions?.from || parsed.directions?.to)) && (
-        <div className="glass" style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 9 }}>
-          <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 2 }}>
-            Extracted
-          </div>
-          {parsed.name && (
-            <div style={{ display: 'flex', gap: 10 }}>
-              <span className="info-label" style={{ paddingTop: 2, minWidth: 56 }}>Name</span>
-              <span style={{ fontSize: 13, color: 'var(--text-primary)', fontWeight: 500 }}>{parsed.name}</span>
-            </div>
-          )}
-          {parsed.coords && (
-            <div style={{ display: 'flex', gap: 10 }}>
-              <span className="info-label" style={{ paddingTop: 2, minWidth: 56 }}>Coords</span>
-              <span style={{ fontSize: 12, color: 'var(--text-secondary)', fontFamily: "'SF Mono','Fira Code',monospace" }}>
-                {formatCoords(parsed.coords)}
-              </span>
-            </div>
-          )}
-          {parsed.zoom && (
-            <div style={{ display: 'flex', gap: 10 }}>
-              <span className="info-label" style={{ paddingTop: 2, minWidth: 56 }}>Zoom</span>
-              <span style={{ fontSize: 12, color: 'var(--text-secondary)', fontFamily: "'SF Mono','Fira Code',monospace" }}>
-                {parsed.zoom}×
-              </span>
-            </div>
-          )}
-          {parsed.directions?.from && (
-            <div style={{ display: 'flex', gap: 10 }}>
-              <span className="info-label" style={{ paddingTop: 2, minWidth: 56 }}>From</span>
-              <span style={{ fontSize: 13, color: 'var(--text-primary)' }}>{parsed.directions.from}</span>
-            </div>
-          )}
-          {parsed.directions?.to && (
-            <div style={{ display: 'flex', gap: 10 }}>
-              <span className="info-label" style={{ paddingTop: 2, minWidth: 56 }}>To</span>
-              <span style={{ fontSize: 13, color: 'var(--text-primary)' }}>{parsed.directions.to}</span>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Arrow divider */}
-      <div className="separator">
-        <IconArrow /><span>converted</span><IconArrow />
-      </div>
-
-      {/* Apple Maps output */}
-      {appleUrl ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span className="tag tag-apple"><IconApple /> Apple Maps</span>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <CopyButton text={appleUrl} />
-              <a
-                href={appleUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 5,
-                  padding: '5px 10px',
-                  background: 'rgba(255,255,255,0.07)',
-                  border: '1px solid rgba(255,255,255,0.12)',
-                  borderRadius: 8,
-                  color: 'var(--text-secondary)',
-                  fontSize: 12, fontWeight: 500,
-                  textDecoration: 'none',
-                  transition: 'all 0.15s',
-                }}
-                onMouseOver={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.12)'; e.currentTarget.style.color = 'white'; }}
-                onMouseOut={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
-              >
-                <IconExternal /> Open
-              </a>
-            </div>
-          </div>
-          <div className="url-box success" style={{ padding: '10px 12px' }}>
-            {appleUrl}
-          </div>
-        </div>
-      ) : (
-        !parsed.type === 'short' && (
-          <div style={{
-            background: 'rgba(239,68,68,0.08)',
-            border: '1px solid rgba(239,68,68,0.2)',
-            borderRadius: 10, padding: '12px 16px',
-            fontSize: 13, color: 'rgba(252,165,165,0.9)',
-          }}>
-            Could not generate Apple Maps URL — insufficient location data.
-          </div>
-        )
+      {/* Mobile drawer */}
+      {showDrawer && (
+        <DetailsDrawer parsed={parsed} onClose={() => setShowDrawer(false)} />
       )}
     </div>
   );
@@ -250,7 +317,7 @@ function ResultPanel({ parsed, appleUrl }) {
 
 const EXAMPLES = [
   {
-    label: 'Place + coords',
+    label: 'Place',
     url: 'https://www.google.com/maps/place/Thai+Peacock/@45.5227052,-122.6828203,17z/data=!3m2!4b1!5s0x54950a03c10c2235:0xd8d1bd2bdce2d95d!4m6!3m5!1s0x54950a03c3b0e46f:0x31e91c3ef4602fec!8m2!3d45.5227015!4d-122.6802454!16s%2Fg%2F1tg6vdq4',
   },
   {
@@ -281,14 +348,18 @@ export default function App() {
     setError(null);
     setResult(null);
 
+    haptic([12]);
+
     const parsed = parseGoogleMapsUrl(value);
 
     if (parsed.error && parsed.type !== 'short') {
+      haptic([30, 50, 30]);
       setError(parsed.error);
       return;
     }
 
     const appleUrl = buildAppleMapsUrl(parsed);
+    haptic([5, 30, 8]);
     setResult({ parsed, appleUrl });
   }, [input]);
 
@@ -298,10 +369,10 @@ export default function App() {
   };
 
   const loadExample = (url) => {
+    haptic([5]);
     setInput(url);
     setResult(null);
     setError(null);
-    // Small delay so state has updated
     requestAnimationFrame(() => convert(url));
   };
 
@@ -321,66 +392,62 @@ export default function App() {
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
-      padding: '48px 20px 64px',
+      padding: 'calc(24px + var(--safe-top, 0px)) 16px calc(32px + var(--safe-bottom, 0px))',
+      maxWidth: 960,
+      margin: '0 auto',
+      width: '100%',
     }}>
 
       {/* Header */}
-      <div style={{ textAlign: 'center', marginBottom: 36 }}>
+      <div style={{ textAlign: 'center', marginBottom: 28 }}>
         <div style={{
-          display: 'inline-flex', alignItems: 'center', gap: 8,
-          padding: '5px 14px',
-          background: 'rgba(255,255,255,0.04)',
-          border: '1px solid rgba(255,255,255,0.09)',
+          display: 'inline-flex', alignItems: 'center', gap: 6,
+          padding: '4px 12px',
+          background: 'rgba(255,255,255,0.5)',
+          border: '1px solid var(--border-light)',
           borderRadius: 100,
-          fontSize: 11, color: 'var(--text-muted)',
-          marginBottom: 20,
+          fontSize: 10, color: 'var(--ink-muted)',
+          marginBottom: 14,
           letterSpacing: '0.08em', fontWeight: 600, textTransform: 'uppercase',
         }}>
           <IconLocation /> Maps Converter
         </div>
 
-        <h1 style={{
-          fontSize: 'clamp(26px, 5vw, 46px)',
-          fontWeight: 700,
-          letterSpacing: '-0.03em',
-          lineHeight: 1.1,
-          background: 'linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.45) 100%)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          backgroundClip: 'text',
-          marginBottom: 14,
+        <h1 className="heading-serif" style={{
+          fontSize: 'clamp(28px, 6vw, 44px)',
+          lineHeight: 1.15,
+          marginBottom: 10,
         }}>
           Google → Apple Maps
         </h1>
 
         <p style={{
-          fontSize: 15,
-          color: 'var(--text-secondary)',
-          lineHeight: 1.65,
-          maxWidth: 420,
+          fontSize: 14,
+          color: 'var(--ink-light)',
+          lineHeight: 1.6,
+          maxWidth: 380,
           margin: '0 auto',
         }}>
-          Paste any Google Maps URL and instantly get the Apple Maps equivalent — places, directions, coordinates, and more.
+          Paste any Google Maps URL and get the Apple Maps equivalent.
         </p>
       </div>
 
-      {/* Main card */}
-      <div className="glass-strong" style={{
-        width: '100%', maxWidth: 640,
-        padding: '26px',
-        display: 'flex', flexDirection: 'column', gap: 18,
+      {/* Input area */}
+      <div className="card-strong" style={{
+        width: '100%',
+        padding: '20px',
+        display: 'flex', flexDirection: 'column', gap: 14,
+        marginBottom: 16,
       }}>
-
-        {/* Input + button */}
         <form onSubmit={handleSubmit} style={{ display: 'flex', gap: 10 }}>
           <input
             ref={inputRef}
-            className="glass-input"
+            className="parchment-input"
             type="text"
             value={input}
             onChange={e => { setInput(e.target.value); setResult(null); setError(null); }}
             onPaste={handlePaste}
-            placeholder="https://www.google.com/maps/place/..."
+            placeholder="Paste a Google Maps URL..."
             style={{ padding: '11px 14px', flex: 1 }}
             autoFocus
             spellCheck={false}
@@ -388,7 +455,7 @@ export default function App() {
           />
           <button
             type="submit"
-            className="btn-primary"
+            className="btn-convert"
             disabled={!input.trim()}
             style={{ padding: '11px 20px', flexShrink: 0 }}
           >
@@ -396,58 +463,42 @@ export default function App() {
           </button>
         </form>
 
-        {/* Example pills */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
-          <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 500 }}>Try:</span>
+          <span style={{ fontSize: 11, color: 'var(--ink-muted)', fontWeight: 500 }}>Try:</span>
           {EXAMPLES.map(ex => (
-            <button
-              key={ex.label}
-              onClick={() => loadExample(ex.url)}
-              style={{
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.09)',
-                borderRadius: 6,
-                padding: '3px 9px',
-                fontSize: 11, fontWeight: 500,
-                color: 'var(--text-secondary)',
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-                transition: 'all 0.15s',
-              }}
-              onMouseOver={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = 'white'; }}
-              onMouseOut={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
-            >
+            <button key={ex.label} className="pill" onClick={() => loadExample(ex.url)}>
               {ex.label}
             </button>
           ))}
         </div>
-
-        {/* Error */}
-        {error && (
-          <div className="fade-in" style={{
-            background: 'rgba(239,68,68,0.08)',
-            border: '1px solid rgba(239,68,68,0.2)',
-            borderRadius: 10, padding: '10px 14px',
-            fontSize: 13, color: 'rgba(252,165,165,0.9)',
-            display: 'flex', gap: 8, alignItems: 'center',
-          }}>
-            <span>⚠</span> {error}
-          </div>
-        )}
-
-        {/* Results */}
-        {result && (
-          <>
-            <div style={{ height: 1, background: 'rgba(255,255,255,0.07)' }} />
-            <ResultPanel parsed={result.parsed} appleUrl={result.appleUrl} />
-          </>
-        )}
       </div>
 
-      {/* Map preview */}
+      {/* Error */}
+      {error && (
+        <div className="fade-in" style={{
+          width: '100%',
+          background: 'var(--rust-bg)',
+          border: '1px solid var(--rust-border)',
+          borderRadius: 12, padding: '10px 14px',
+          fontSize: 13, color: 'var(--rust)',
+          display: 'flex', gap: 8, alignItems: 'center',
+          marginBottom: 16,
+        }}>
+          <span style={{ flexShrink: 0 }}>⚠</span> {error}
+        </div>
+      )}
+
+      {/* Translation result — left-to-right */}
+      {result && (
+        <div style={{ width: '100%', marginBottom: 16 }}>
+          <TranslationResult parsed={result.parsed} appleUrl={result.appleUrl} />
+        </div>
+      )}
+
+      {/* Map at bottom */}
       {result?.parsed?.coords && (
-        <div className="fade-in" style={{ width: '100%', maxWidth: 640, marginTop: 14 }}>
-          <div className="glass" style={{ padding: 5, overflow: 'hidden' }}>
+        <div className="fade-in" style={{ width: '100%' }}>
+          <div className="card" style={{ padding: 5, overflow: 'hidden' }}>
             <MapPreview
               coords={result.parsed.coords}
               zoom={Math.min(result.parsed.zoom || 14, 17)}
@@ -459,20 +510,22 @@ export default function App() {
 
       {/* Footer */}
       <div style={{
-        marginTop: 48,
-        fontSize: 12,
-        color: 'var(--text-muted)',
+        marginTop: 'auto',
+        paddingTop: 32,
+        textAlign: 'center',
+        fontSize: 11,
+        color: 'var(--ink-faint)',
         display: 'flex',
         flexWrap: 'wrap',
-        gap: '6px 16px',
+        gap: '4px 14px',
         justifyContent: 'center',
         lineHeight: 1.6,
       }}>
-        <span>Handles all Google Maps URL formats</span>
-        <span style={{ opacity: 0.3 }}>·</span>
-        <span>Runs entirely in your browser</span>
-        <span style={{ opacity: 0.3 }}>·</span>
-        <span>No data sent to servers</span>
+        <span>All URL formats</span>
+        <span style={{ opacity: 0.4 }}>·</span>
+        <span>Runs in browser</span>
+        <span style={{ opacity: 0.4 }}>·</span>
+        <span>No data sent</span>
       </div>
     </div>
   );

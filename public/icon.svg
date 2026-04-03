@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#f5f0e8"/>
+  <rect x="16" y="16" width="480" height="480" rx="80" fill="none" stroke="#d4c4a8" stroke-width="2" stroke-dasharray="8 4"/>
+  <!-- Map pin -->
+  <g transform="translate(256, 220)">
+    <path d="M0-120c-55 0-100 45-100 100 0 80 100 170 100 170s100-90 100-170c0-55-45-100-100-100z" fill="#c75a3a" stroke="#a04828" stroke-width="6"/>
+    <circle cx="0" cy="-20" r="36" fill="#f5f0e8"/>
+  </g>
+  <!-- Arrow -->
+  <g transform="translate(256, 400)">
+    <path d="M-60 0h120M40-20l20 20-20 20" fill="none" stroke="#8b7355" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

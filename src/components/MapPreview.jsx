@@ -1,19 +1,19 @@
 import { useEffect, useRef } from 'react';
 import maplibregl from 'maplibre-gl';
 
-// Dark map style using Carto free tiles (no API key needed, same as mapcn.dev)
-const DARK_STYLE = {
+// Voyager style — warm, vintage-looking. No API key needed.
+const MAP_STYLE = {
   version: 8,
   sources: {
     carto: {
       type: 'raster',
       tiles: [
-        'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
-        'https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
-        'https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
+        'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+        'https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+        'https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
       ],
       tileSize: 256,
-      attribution: '© CARTO, © OpenStreetMap contributors',
+      attribution: '&copy; CARTO, &copy; OpenStreetMap contributors',
       maxzoom: 19,
     },
   },
@@ -30,7 +30,7 @@ export default function MapPreview({ coords, zoom = 14, name }) {
 
     const map = new maplibregl.Map({
       container: containerRef.current,
-      style: DARK_STYLE,
+      style: MAP_STYLE,
       center: [coords.lng, coords.lat],
       zoom,
       attributionControl: true,
@@ -39,7 +39,6 @@ export default function MapPreview({ coords, zoom = 14, name }) {
 
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
 
-    // Custom marker element
     const el = document.createElement('div');
     el.className = 'marker-pin';
 
@@ -58,7 +57,6 @@ export default function MapPreview({ coords, zoom = 14, name }) {
     };
   }, []);
 
-  // Update position when coords change
   useEffect(() => {
     if (!mapRef.current || !coords) return;
     mapRef.current.flyTo({
@@ -71,27 +69,26 @@ export default function MapPreview({ coords, zoom = 14, name }) {
   }, [coords.lat, coords.lng, zoom]);
 
   return (
-    <div className="map-container" style={{ height: 300, width: '100%' }}>
+    <div className="map-container" style={{ height: 280, width: '100%' }}>
       <div ref={containerRef} style={{ width: '100%', height: '100%' }} />
       {name && (
         <div className="map-overlay" style={{ zIndex: 1 }}>
-          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginBottom: 2 }}>Location</div>
+          <div style={{ fontSize: 11, color: 'var(--ink-muted)', marginBottom: 2 }}>Location</div>
           <div style={{ fontWeight: 600, fontSize: 13, lineHeight: 1.3 }}>{name}</div>
         </div>
       )}
-      {/* Coordinates badge */}
       <div style={{
         position: 'absolute',
-        bottom: 12,
-        left: 12,
-        background: 'rgba(7, 10, 18, 0.7)',
-        border: '1px solid rgba(255,255,255,0.08)',
+        bottom: 10,
+        left: 10,
+        background: 'rgba(245, 240, 232, 0.85)',
+        border: '1px solid var(--border-light)',
         backdropFilter: 'blur(10px)',
-        borderRadius: 8,
-        padding: '4px 8px',
-        fontSize: 11,
-        fontFamily: "'SF Mono', 'Fira Code', monospace",
-        color: 'rgba(255,255,255,0.5)',
+        borderRadius: 6,
+        padding: '3px 7px',
+        fontSize: 10,
+        fontFamily: "'SF Mono','Fira Code',monospace",
+        color: 'var(--ink-muted)',
         pointerEvents: 'none',
         zIndex: 1,
       }}>
