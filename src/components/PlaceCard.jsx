@@ -13,10 +13,7 @@ export default function PlaceCard({ name, coords }) {
     setImgError(false);
 
     fetchPlaceInfo(name, coords).then(result => {
-      if (!cancelled) {
-        setInfo(result);
-        setLoading(false);
-      }
+      if (!cancelled) { setInfo(result); setLoading(false); }
     });
 
     return () => { cancelled = true; };
@@ -27,9 +24,9 @@ export default function PlaceCard({ name, coords }) {
       <div className="place-card-skeleton">
         <div className="skeleton-image" />
         <div className="skeleton-text">
-          <div className="skeleton-line" style={{ width: '60%' }} />
-          <div className="skeleton-line" style={{ width: '90%' }} />
-          <div className="skeleton-line" style={{ width: '75%' }} />
+          <div className="skeleton-line" style={{ width: '55%' }} />
+          <div className="skeleton-line" style={{ width: '85%' }} />
+          <div className="skeleton-line" style={{ width: '70%' }} />
         </div>
       </div>
     );
@@ -40,16 +37,10 @@ export default function PlaceCard({ name, coords }) {
   const hasImage = info.thumbnail && !imgError;
 
   return (
-    <div className="place-card fade-in">
+    <div className="place-card">
       {hasImage && (
         <div className="place-card-image-wrap">
-          <img
-            src={info.thumbnail}
-            alt={info.title || name}
-            className="place-card-image"
-            onError={() => setImgError(true)}
-            loading="lazy"
-          />
+          <img src={info.thumbnail} alt={info.title || name} className="place-card-image" onError={() => setImgError(true)} loading="lazy" />
           <div className="place-card-image-gradient" />
         </div>
       )}
@@ -62,24 +53,13 @@ export default function PlaceCard({ name, coords }) {
           </div>
           <div>
             <div className="place-card-title">{name || info.title}</div>
-            {info.title && info.title !== name && (
-              <div className="place-card-subtitle">{info.title}</div>
-            )}
+            {info.title && info.title !== name && <div className="place-card-subtitle">{info.title}</div>}
           </div>
         </div>
-        {info.description && (
-          <p className="place-card-desc">{info.description}</p>
-        )}
+        {info.description && <p className="place-card-desc">{info.description}</p>}
         {info.url && (
-          <a
-            href={info.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="place-card-wiki-link"
-          >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
-            </svg>
+          <a href={info.url} target="_blank" rel="noopener noreferrer" className="place-card-wiki-link">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
             Wikipedia
           </a>
         )}
