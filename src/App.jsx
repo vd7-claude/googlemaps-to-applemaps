@@ -81,6 +81,8 @@ export default function App() {
   const convert = useCallback((urlOverride) => {
     const value = (urlOverride !== undefined ? urlOverride : input).trim();
     if (!value) return;
+    // Collapse keyboard / dismiss dock on mobile
+    document.activeElement?.blur();
     setError(null); setResult(null); setLoading(true);
     haptic([10]);
 
