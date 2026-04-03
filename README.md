@@ -4,7 +4,7 @@
 <img src="https://raw.githubusercontent.com/vdutts7/squircle/refs/heads/main/webp/macos/apple-maps.webp" alt="Apple Maps" width="80" height="80" />
 
 <h1 align="center">googlemaps-to-applemaps</h1>
-<p align="center"><i><b>Paste a Google Maps URL. Get an Apple Maps URL. That's it.</b></i></p>
+<p align="center"><i><b>Drop Google Maps link → get Apple Maps link</b></i></p>
 
 </div>
 
